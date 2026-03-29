@@ -16,7 +16,8 @@ const save_to_db = async (event, content) => {
         from_email: event.data.from || "",
         to_email: event.data.to?.[0] || "",
         subject: event.data.subject || "",
-        text: content?.text || "",
+        html_body: content?.html || "",
+        text_body: content?.text || "",
         resend_message_id: event.data.message_id || "",
         received_at: new Date().toISOString(),
     });
