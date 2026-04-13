@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const raise_error = (message, details) => {
     throw new Error(JSON.stringify({ message, details }));
@@ -55,8 +56,6 @@ const forward_email = async (
 };
 
 router.post("/webhook/redirect", async (req, res) => {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
     try {
         const event = req.body;
 
@@ -102,6 +101,36 @@ router.post("/webhook/redirect", async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             error: "Webhook failed",
+            details: err.message,
+        });
+    }
+});
+
+router.post("/send", async (req, res) => {
+    try {
+        const { subject, html } = req.body;
+
+        if (!subject || !html) {
+            return res.status(400).json({
+                error: "Missing required fields: subject, html",
+            });
+        }
+
+        const { error } = await resend.emails.send({
+            from: "Unchained India <outreach@mail.unchainedin.app>",
+            to: "sambhavsaxena02@gmail.com",
+            subject,
+            html,
+        });
+
+        if (error) {
+            raise_error("Failed to send email.", error);
+        }
+
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({
+            error: "Failed to send email",
             details: err.message,
         });
     }
