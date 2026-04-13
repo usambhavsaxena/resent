@@ -1,5 +1,4 @@
 import express from "express";
-import { supabase } from "./supabase.js";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
@@ -12,41 +11,14 @@ const raise_error = (message, details) => {
     throw new Error(JSON.stringify({ message, details }));
 };
 
-const save_to_db = async (event, content) => {
-    const { error } = await supabase.from("received_emails").insert({
-        from_email: event.data.from || "",
-        to_email: event.data.to?.[0] || "",
-        subject: event.data.subject || "",
-        html_body: content?.html || "",
-        text_body: content?.text || "",
-        resend_message_id: event.data.message_id || "",
-        received_at: new Date().toISOString(),
-    });
-
-    if (error) {
-        raise_error("Failed to save email to database.", error);
-    }
-};
-
 const forward_email = async (
     resend,
     event,
     from_email
 ) => {
-    const { data: settings, error } = await supabase
-        .from("settings")
-        .select("personal_email")
-        .maybeSingle();
-
-    if (error) {
-        raise_error("Failed to retrieve settings.", error);
-    }
-
-    if (!settings?.personal_email) return;
-
     const { error: forwardError } = await resend.emails.receiving.forward({
         emailId: event.data.email_id,
-        to: settings.personal_email,
+        to: "sambhavsaxena02@gmail.com",
         from: from_email,
     });
 
@@ -63,10 +35,6 @@ router.post("/webhook/redirect", async (req, res) => {
             return res.json({ ok: true });
         }
 
-        const { data: content } = await resend.emails.receiving.get(
-            event.data.email_id
-        );
-
         const recipient = event.data.to?.[0]?.split("@")[0];
 
         switch (recipient) {
@@ -76,7 +44,6 @@ router.post("/webhook/redirect", async (req, res) => {
                     event,
                     "Outreach Unchained <outreach@mail.unchainedin.app>"
                 );
-                await save_to_db(event, content);
                 break;
 
             case "career":
@@ -85,7 +52,6 @@ router.post("/webhook/redirect", async (req, res) => {
                     event,
                     "Career Unchained <career@mail.unchainedin.app>"
                 );
-                await save_to_db(event, content);
                 break;
 
             default:

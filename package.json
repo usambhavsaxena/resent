@@ -11,12 +11,10 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@supabase/supabase-js": "^2.100.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "nodemon": "^3.1.14",
-    "resend": "^6.9.4",
-    "supabase": "^2.84.4"
+    "resend": "^6.9.4"
   }
 }
