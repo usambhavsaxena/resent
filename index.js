@@ -5,7 +5,7 @@ import webhookRouter from "./webhook.js";
 const app = express();
 
 app.use(cors({
-  origin: ["http://localhost:8080", "http://localhost:3000", "http://localhost:5173", "http://neev.unchainedin.app", "https://unchainedin.app"],
+  origin: ["http://localhost:8080", "http://localhost:3000", "http://localhost:5173", "https://neev.unchainedin.app", "https://unchainedin.app"],
   methods: ["POST"],
 }));
 
